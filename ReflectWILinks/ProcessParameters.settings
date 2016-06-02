@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ReflectWILinks" GeneratedClassName="ProcessParameters">
+  <Profiles />
+  <Settings>
+    <Setting Name="AddMissingChangesets" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AddMissingRelated" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AddMissingOtherExternal" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TargetTfsUri" Type="System.Uri" Scope="Application">
+      <Value Profile="(Default)">http://my-tfs:8080/tfs</Value>
+    </Setting>
+    <Setting Name="SourceTfsUri" Type="System.Uri" Scope="Application">
+      <Value Profile="(Default)">http://myother-tfs:8080/tfs</Value>
+    </Setting>
+    <Setting Name="ScopeQueryGuid" Type="System.Guid" Scope="Application">
+      <Value Profile="(Default)">3e983292-3715-4c5e-8c37-43d6baf8ce36</Value>
+    </Setting>
+    <Setting Name="TargetQueryGuid" Type="System.Guid" Scope="Application">
+      <Value Profile="(Default)">164d7513-e460-4429-8709-dfce48047590</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
