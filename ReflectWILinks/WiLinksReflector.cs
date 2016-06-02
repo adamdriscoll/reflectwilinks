@@ -42,7 +42,7 @@ namespace ReflectWILinks
         // Key is the Id of the source work item and value the target work item Id
         private Dictionary<int, int> _reflectedWorkItemIds;
 
-        private const string ReflectedIdFieldName = "TfsMigrationTool.ReflectedWorkItemId";
+        private const string ReflectedIdFieldName = "TfsMigrationToolReflectedWorkItemId";
 
         public delegate void LogMessage(string message, TraceLevel level);
         public event LogMessage LogMessageEvent;
