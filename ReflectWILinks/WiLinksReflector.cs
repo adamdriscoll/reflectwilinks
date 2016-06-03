@@ -21,6 +21,7 @@ using System.Text;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.TeamFoundation.Client;
 using System.Diagnostics;
+using Microsoft.TeamFoundation.VersionControl.Client;
 
 namespace ReflectWILinks
 {
@@ -34,6 +35,10 @@ namespace ReflectWILinks
         private WorkItemStore _sourceWis;
         private WorkItemStore _targetWis;
         private HashSet<int> _processedWorkItems = new HashSet<int>();
+
+        private VersionControlServer _sourceVersionControlServer;
+        private VersionControlServer _targetVersionControlServer;
+
 
         private const int MAX_WI_LINKS_TO_RESTORE = 30;
 
@@ -87,11 +92,13 @@ namespace ReflectWILinks
             _sourceTpc = new TfsTeamProjectCollection(SourceTfsUri);
             _sourceTpc.Authenticate();
             _sourceWis = _sourceTpc.GetService<WorkItemStore>();
+            _sourceVersionControlServer = _sourceTpc.GetService<VersionControlServer>();
 
             log(TraceLevel.Info, "Connecting to {0}", TargetTfsUri);
             _targetTpc = new TfsTeamProjectCollection(TargetTfsUri);
             _targetTpc.Authenticate();
             _targetWis = _targetTpc.GetService<WorkItemStore>();
+            _targetVersionControlServer = _targetTpc.GetService<VersionControlServer>();
         }
 
         public void LoadReflectedWorkItemIds(Guid reflectedLinksScopeQuery)
@@ -277,25 +284,70 @@ namespace ReflectWILinks
                 var externalLink = link as ExternalLink;
                 if (externalLink != null)
                 {
+                    var externalLinkType = externalLink.ArtifactLinkType;
+                    var externalLinkUri = externalLink.LinkedArtifactUri;
+
                     // changesets are external links, we need to distinguish them
                     bool changeset = isChangeset(externalLink);
 
                     if (changeset)
+                    {
                         NbSourceChangesetLinksFound++;
+
+                        var sourceChangeset = _sourceVersionControlServer.ArtifactProvider.GetChangeset(new Uri(externalLinkUri));
+                        var hasSourceChangesetId = _targetVersionControlServer.GetAllCheckinNoteFieldNames()
+                            .Any(m => m.Equals("SourceChangesetId", StringComparison.OrdinalIgnoreCase));
+
+                        if (hasSourceChangesetId)
+                        {
+                            // Create versionspec's. Example start with changeset 1
+                            VersionSpec versionFrom = VersionSpec.ParseSingleSpec("C1", null);
+                            // If you want all changesets use this versionFrom:
+                            // VersionSpec versionFrom = null;
+                            VersionSpec versionTo = VersionSpec.Latest;
+
+                            // Get Changesets
+                            var changesets = _targetVersionControlServer.QueryHistory(
+                              "$/",
+                              VersionSpec.Latest,
+                              0,
+                              RecursionType.Full,
+                              null,
+                              versionFrom,
+                              versionTo,
+                              Int32.MaxValue,
+                              false,
+                              false
+                              ).Cast<Changeset>();
+
+                            var targetChangeset = changesets.FirstOrDefault(
+                                m =>
+                                {
+                                    var fieldValue = m.CheckinNote.Values.FirstOrDefault(
+                                        x => x.Name.Equals("SourceChangesetId", StringComparison.OrdinalIgnoreCase));
+                                    return fieldValue != null && fieldValue.Value == sourceChangeset.ToString();
+                                });
+
+                            if (targetChangeset != null)
+                            {
+                                externalLinkUri = targetChangeset.ArtifactUri.AbsoluteUri;
+                            }
+                        }
+                    }
                     else
                         NbSourceExternalLinksFound++;
 
                     if ((changeset && AddMissingChangesetsLinks) || (!changeset && AddMissingExternalLinks))
                     {
                         // Warning: use Equals for ArtifactLinkType (referenceequals or == does not work)
-                        if (!targetWi.Links.OfType<ExternalLink>().Any(x => x.ArtifactLinkType.Equals(externalLink.ArtifactLinkType) && x.LinkedArtifactUri == externalLink.LinkedArtifactUri))
+                        if (!targetWi.Links.OfType<ExternalLink>().Any(x => x.ArtifactLinkType.Equals(externalLinkType) && x.LinkedArtifactUri == externalLinkUri))
                         {
-                            newLink = new ExternalLink(externalLink.ArtifactLinkType, externalLink.LinkedArtifactUri);
+                            newLink = new ExternalLink(externalLinkType, externalLinkUri);
                             if (changeset)
                                 addedLinks.ChangesetLinks++;
                             else
                                 addedLinks.ExternalLinks++;
-                            log(TraceLevel.Verbose, "Adding External link to wi " + targetWi.Id + " " + externalLink.LinkedArtifactUri);
+                            log(TraceLevel.Verbose, "Adding External link to wi " + targetWi.Id + " " + externalLinkUri);
                         }
                     }
                 }
