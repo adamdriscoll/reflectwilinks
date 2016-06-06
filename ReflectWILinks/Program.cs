@@ -27,9 +27,23 @@ namespace ReflectWILinks
             reflector.AddMissingChangesetsLinks = ProcessParameters.Default.AddMissingChangesets;
             reflector.AddMissingExternalLinks = ProcessParameters.Default.AddMissingOtherExternal;
 
-            reflector.LoadReflectedWorkItemIds(ProcessParameters.Default.ScopeQueryGuid);
-
-            reflector.ProcessWorkItems(ProcessParameters.Default.TargetQueryGuid);
+            if (string.IsNullOrEmpty(ProcessParameters.Default.ScopeQueryName))
+            {
+                reflector.LoadReflectedWorkItemIds(ProcessParameters.Default.ScopeQueryGuid);
+            }
+            else
+            {
+                reflector.LoadReflectedWorkItemIds(ProcessParameters.Default.ScopeQueryName);
+            }
+            
+            if (string.IsNullOrEmpty(ProcessParameters.Default.TargetQueryName))
+            {
+                reflector.ProcessWorkItems(ProcessParameters.Default.TargetQueryGuid);
+            }
+            else
+            {
+                reflector.ProcessWorkItems(ProcessParameters.Default.TargetQueryName);
+            }
 
             Console.ForegroundColor = defaultConsoleColor;
             watch.Stop();

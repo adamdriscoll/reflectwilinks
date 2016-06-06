@@ -104,6 +104,45 @@ namespace ReflectWILinks
             _targetVersionControlServer = _targetTpc.GetService<VersionControlServer>();
         }
 
+        private static Guid FindQuery(QueryFolder folder, string queryName)
+        {
+            foreach (var item in folder)
+            {
+                if (item.Name.Equals(queryName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return item.Id;
+                }
+
+                var itemFolder = item as QueryFolder;
+                if (itemFolder != null)
+                {
+                    var result = FindQuery(itemFolder, queryName);
+                    if (!result.Equals(Guid.Empty))
+                    {
+                        return result;
+                    }
+                }
+            }
+            return Guid.Empty;
+        }
+
+        public void LoadReflectedWorkItemIds(string reflectedLinksScopeQuery)
+        {
+            if (_sourceTpc == null) Initialize();
+
+            var id = FindQuery(_targetWis.Projects[TargetProject].QueryHierarchy, reflectedLinksScopeQuery);
+
+            if (id == Guid.Empty)
+            {
+                log(TraceLevel.Error, "Unable to find query {0}", reflectedLinksScopeQuery);
+                return;
+            }
+
+            log(TraceLevel.Info, "Found query '{0}' with id '{1}'", reflectedLinksScopeQuery, id);
+
+            LoadReflectedWorkItemIds(id);
+        }
+
         public void LoadReflectedWorkItemIds(Guid reflectedLinksScopeQuery)
         {
             if (_sourceTpc == null) Initialize();
@@ -135,6 +174,24 @@ namespace ReflectWILinks
             public int ChangesetLinks;
             public int ExternalLinks;
             public List<Link> Links = new List<Link>();
+        }
+
+
+        public void ProcessWorkItems(string targetWorkItemsQuery)
+        {
+            if (_sourceTpc == null) Initialize();
+
+            var id = FindQuery(_targetWis.Projects[TargetProject].QueryHierarchy, targetWorkItemsQuery);
+
+            if (id == Guid.Empty)
+            {
+                log(TraceLevel.Error, "Unable to find query {0}", targetWorkItemsQuery);
+                return;
+            }
+
+            log(TraceLevel.Info, "Found query '{0}' with id '{1}'", targetWorkItemsQuery, id);
+
+            ProcessWorkItems(id);
         }
 
         public void ProcessWorkItems(Guid targetWorkItemsQueryGuid)

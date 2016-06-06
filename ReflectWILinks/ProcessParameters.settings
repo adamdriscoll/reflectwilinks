@@ -26,5 +26,11 @@
     <Setting Name="TargetProject" Type="System.String" Scope="Application">
       <Value Profile="(Default)">ADVC7</Value>
     </Setting>
+    <Setting Name="ScopeQueryName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ScopeQueryName</Value>
+    </Setting>
+    <Setting Name="TargetQueryName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">TargetQueryName</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

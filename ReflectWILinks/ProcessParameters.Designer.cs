@@ -94,5 +94,23 @@ namespace ReflectWILinks {
                 return ((string)(this["TargetProject"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ScopeQueryName")]
+        public string ScopeQueryName {
+            get {
+                return ((string)(this["ScopeQueryName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("TargetQueryName")]
+        public string TargetQueryName {
+            get {
+                return ((string)(this["TargetQueryName"]));
+            }
+        }
     }
 }
