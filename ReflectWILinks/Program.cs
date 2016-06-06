@@ -21,7 +21,7 @@ namespace ReflectWILinks
             watch.Start();
             defaultConsoleColor = Console.ForegroundColor;
 
-            var reflector = new WiLinksReflector(ProcessParameters.Default.SourceTfsUri, ProcessParameters.Default.TargetTfsUri);
+            var reflector = new WiLinksReflector(ProcessParameters.Default.SourceTfsUri, ProcessParameters.Default.TargetTfsUri, ProcessParameters.Default.TargetProject);
             reflector.LogMessageEvent += refl_LogMessageEvent;
             reflector.AddMissingRelatedLinks = ProcessParameters.Default.AddMissingRelated;
             reflector.AddMissingChangesetsLinks = ProcessParameters.Default.AddMissingChangesets;

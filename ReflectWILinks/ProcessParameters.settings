@@ -23,5 +23,8 @@
     <Setting Name="TargetQueryGuid" Type="System.Guid" Scope="Application">
       <Value Profile="(Default)">164d7513-e460-4429-8709-dfce48047590</Value>
     </Setting>
+    <Setting Name="TargetProject" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ADVC7</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -72,14 +72,16 @@ namespace ReflectWILinks
         public int NbTargetCrossRelatedLinks { get; private set; }
         public int NbMissingRelatedWorkItems { get; private set; }
         public int NbSaveErrors { get; private set; }
+        public string TargetProject { get; private set; }
 
-        public WiLinksReflector(Uri sourceTfsUri, Uri targetTfsUri)
+        public WiLinksReflector(Uri sourceTfsUri, Uri targetTfsUri, string targetProject)
         {
             SourceTfsUri = sourceTfsUri;
             TargetTfsUri = targetTfsUri;
             AddMissingRelatedLinks = true;
             AddMissingChangesetsLinks = true;
             AddMissingExternalLinks = true;
+            TargetProject = targetProject;
         }
 
         /// <summary>
@@ -97,6 +99,7 @@ namespace ReflectWILinks
             log(TraceLevel.Info, "Connecting to {0}", TargetTfsUri);
             _targetTpc = new TfsTeamProjectCollection(TargetTfsUri);
             _targetTpc.Authenticate();
+
             _targetWis = _targetTpc.GetService<WorkItemStore>();
             _targetVersionControlServer = _targetTpc.GetService<VersionControlServer>();
         }
@@ -112,7 +115,7 @@ namespace ReflectWILinks
 
             log(TraceLevel.Info, "Executing query " + query.Name);
             log(TraceLevel.Verbose, query.QueryText);
-            foreach (WorkItem wi in _targetWis.Query(query.QueryText))
+            foreach (WorkItem wi in _targetWis.Query(query.QueryText.Replace("@project", "'" + TargetProject + "'")))
             {
                 // key is the source work item id
                 try
@@ -143,7 +146,7 @@ namespace ReflectWILinks
 
             log(TraceLevel.Info, "Executing query " + queryDef.Name);
             log(TraceLevel.Verbose, queryDef.QueryText);
-            WorkItemCollection result = _targetWis.Query(queryDef.QueryText);
+            WorkItemCollection result = _targetWis.Query(queryDef.QueryText.Replace("@project", "'" + TargetProject + "'"));
             log(TraceLevel.Info, result.Count + " Work Item(s) found");
 
             log(TraceLevel.Info, "Starting processing");
