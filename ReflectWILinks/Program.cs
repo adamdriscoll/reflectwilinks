@@ -66,6 +66,8 @@ namespace ReflectWILinks
                 reflector.NbSourceExternalLinksFound,
                 reflector.NbTargetExternalLinksFound,
                 reflector.NbTargetExternalLinksAdded);
+
+            Console.Read();
         }
 
         static void refl_LogMessageEvent(string message, TraceLevel level)

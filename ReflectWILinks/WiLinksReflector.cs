@@ -159,7 +159,10 @@ namespace ReflectWILinks
                 // key is the source work item id
                 try
                 {
-                    _reflectedWorkItemIds.Add(int.Parse((string)wi.Fields[ReflectedIdFieldName].Value), wi.Id);
+                    if (wi.Fields.Contains(ReflectedIdFieldName))
+                    {
+                        _reflectedWorkItemIds.Add(int.Parse((string)wi.Fields[ReflectedIdFieldName].Value), wi.Id);
+                    }
                 }
                 catch (ArgumentException)
                 {
@@ -209,9 +212,9 @@ namespace ReflectWILinks
             log(TraceLevel.Info, "Starting processing");
             foreach (WorkItem wi in result)
             {
-                Field reflectedWorkItemIdField = wi.Fields[ReflectedIdFieldName];
-                if (reflectedWorkItemIdField != null)
+                if (wi.Fields.Contains(ReflectedIdFieldName))
                 {
+                    Field reflectedWorkItemIdField = wi.Fields[ReflectedIdFieldName];
                     int relfectedWorkItemId;
                     if (int.TryParse((string)reflectedWorkItemIdField.Value, out relfectedWorkItemId))
                     {
@@ -385,12 +388,16 @@ namespace ReflectWILinks
                                 {
                                     var fieldValue = m.CheckinNote.Values.FirstOrDefault(
                                         x => x.Name.Equals("SourceChangesetId", StringComparison.OrdinalIgnoreCase));
-                                    return fieldValue != null && fieldValue.Value == sourceChangeset.ToString();
+                                    return fieldValue != null && fieldValue.Value == sourceChangeset.ChangesetId.ToString();
                                 });
 
                             if (targetChangeset != null)
                             {
                                 externalLinkUri = targetChangeset.ArtifactUri.AbsoluteUri;
+                            }
+                            else
+                            {
+                                continue;
                             }
                         }
                     }
